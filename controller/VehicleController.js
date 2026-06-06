@@ -1,6 +1,3 @@
-// import Vehicle from "./vehicle.model.js";
-// import Customer from "../customer/customer.model.js";
-
 import Customer from "../models/customer.model.js";
 import Vehicle from "../models/vehicle.model.js";
 
@@ -31,8 +28,14 @@ export const createVehicle = async (req, res) => {
 
 export const getVehicles = async (req, res) => {
   try {
+    console.log(Vehicle.associations);
     const vehicles = await Vehicle.findAll({
-      include: [Customer],
+      include: [
+        {
+          model: Customer,
+          as: "customer",
+        },
+      ],
     });
 
     return res.json({

@@ -1,7 +1,38 @@
 import { Router } from "express";
+import {
+  createEstimate,
+  getEstimates,
+  getEstimateById,
+  updateEstimate,
+  deleteEstimate,
+  approveEstimate,
+  rejectEstimate,
+} from "../controller/EstimateController.js";
+
+// import {
+//   createEstimate,
+//   getEstimates,
+//   getEstimateById,
+//   updateEstimate,
+//   deleteEstimate,
+//   approveEstimate,
+//   rejectEstimate,
+// } from "./estimate.controller.js";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
-  return res.json({ message: "successfully connect Routes model" });
-});
+router.post("/", createEstimate);
+
+router.get("/", getEstimates);
+
+router.get("/:id", getEstimateById);
+
+router.put("/:id", updateEstimate);
+
+router.delete("/:id", deleteEstimate);
+
+router.patch("/:id/approve", approveEstimate);
+
+router.patch("/:id/reject", rejectEstimate);
+
+export default router;

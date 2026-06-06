@@ -6,6 +6,8 @@ import { sequelize } from "./config/DatabaseConfig.js";
 
 import Routes from "./routes/index.js";
 
+import { Customer, Vehicle } from "./models/index.js";
+
 const app = express();
 
 // Middleware

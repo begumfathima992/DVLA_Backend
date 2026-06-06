@@ -32,9 +32,11 @@ export const getCustomers = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      message: "Data get Successfully",
       data: customers,
     });
   } catch (error) {
+    console.log(error, "error");
     return res.status(500).json({
       success: false,
       message: error.message,

@@ -1,39 +1,11 @@
-import fs from "fs";
-import path from "path";
-import { Sequelize, DataTypes } from "sequelize";
-import { fileURLToPath } from "url";
+import Estimate from "./estimate.model.js";
+import EstimateItem from "./estimateItem.model.js";
 import Customer from "./customer.model.js";
-import Vehicle from "./vehicle.model";
+import Vehicle from "./vehicle.model.js";
+import { sequelize } from "../config/DatabaseConfig.js";
+import User from "./user.model.js";
+// Associations
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const basename = path.basename(__filename);
-
-const db = {};
-
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    dialect: "mysql",
-    logging: false,
-  },
-);
-
-const files = fs
-  .readdirSync(__dirname)
-  .filter((file) => file !== basename && file.endsWith(".js"));
-
-for (const file of files) {
-  const modelModule = await import(path.join(__dirname, file));
-
-  const model = modelModule.default(sequelize, DataTypes);
-
-  db[model.name] = model;
-}
 Customer.hasMany(Vehicle, {
   foreignKey: "customerId",
   as: "vehicles",
@@ -44,12 +16,31 @@ Vehicle.belongsTo(Customer, {
   as: "customer",
 });
 
-Object.keys(db).forEach((modelName) => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
+Estimate.hasMany(EstimateItem, {
+  foreignKey: "estimateId",
+  as: "items",
+});
+Customer.hasMany(Estimate, {
+  foreignKey: "customerId",
+  as: "estimates",
+});
+Estimate.belongsTo(Customer, {
+  foreignKey: "customerId",
+  as: "customer",
 });
 
-db.sequelize = sequelize;
+EstimateItem.belongsTo(Estimate, {
+  foreignKey: "estimateId",
+});
 
-export default db;
+Vehicle.hasMany(Estimate, {
+  foreignKey: "vehicleId",
+  as: "estimates",
+});
+
+Estimate.belongsTo(Vehicle, {
+  foreignKey: "vehicleId",
+  as: "vehicle",
+});
+
+export { sequelize, Customer, Vehicle, Estimate, EstimateItem, User };
