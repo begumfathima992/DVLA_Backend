@@ -4,6 +4,7 @@ import { User } from "../models/index.js";
 
 export const register = async (req, res) => {
   try {
+    console.log("dvla")
     const { name, email, password, role } = req.body;
 
     const existingUser = await User.findOne({
