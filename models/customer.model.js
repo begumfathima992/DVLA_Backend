@@ -33,16 +33,36 @@ const Customer = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+//     customerCode: {
+//   type: DataTypes.STRING,
+//   allowNull: true,
+//   field: 'customer_code' // <-- This tells Sequelize to look for 'customer_code' in the actual DB
+// },
 
     telephone: {
       type: DataTypes.STRING,
       allowNull: true,
     },
 
+    // gdprConsent: {
+    //   type: DataTypes.BOOLEAN,
+    //   allowNull: true,
+    // },
+
+
+
     gdprConsent: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-    },
+  type: DataTypes.BOOLEAN,
+  allowNull: true,
+  set(value) {
+    // If the frontend sends an empty string, convert it to null (or false)
+    if (value === "") {
+      this.setDataValue("gdprConsent", null); 
+    } else {
+      this.setDataValue("gdprConsent", value);
+    }
+  }
+},
 
     creditTerms: {
       type: DataTypes.STRING,

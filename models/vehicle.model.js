@@ -36,10 +36,14 @@ const Vehicle = sequelize.define(
       type: DataTypes.STRING,
     },
 
+    // --- NUMERIC FIELDS WITH SETTERS ---
     mileage: {
       type: DataTypes.INTEGER,
+      set(value) {
+        this.setDataValue("mileage", value === "" ? null : value);
+      },
     },
-    // new field add on
+
     engineNumber: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -58,31 +62,50 @@ const Vehicle = sequelize.define(
     cc: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      set(value) {
+        this.setDataValue("cc", value === "" ? null : value);
+      },
     },
 
     grossWeight: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true,
+      set(value) {
+        this.setDataValue("grossWeight", value === "" ? null : value);
+      },
     },
 
+    // --- DATE FIELDS WITH SETTERS ---
     taxDueDate: {
       type: DataTypes.DATE,
       allowNull: true,
+      set(value) {
+        this.setDataValue("taxDueDate", value === "" ? null : value);
+      },
     },
 
     motDueDate: {
       type: DataTypes.DATE,
       allowNull: true,
+      set(value) {
+        this.setDataValue("motDueDate", value === "" ? null : value);
+      },
     },
 
     nextServiceDate: {
       type: DataTypes.DATE,
       allowNull: true,
+      set(value) {
+        this.setDataValue("nextServiceDate", value === "" ? null : value);
+      },
     },
 
     lastMileage: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      set(value) {
+        this.setDataValue("lastMileage", value === "" ? null : value);
+      },
     },
   },
   {
