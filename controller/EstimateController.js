@@ -11,7 +11,22 @@ export const createEstimate = async (req, res) => {
       notes,
       validUntil,
       items,
+      estimateDate,
+      documentType,
+      labourRate,
+      jobNumber,
+      customerOrderNumber,
+      serviceAdvisor,
+      defaultDiscount,
+      vehicleMileage,
     } = req.body;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one item is required",
+      });
+    }
 
     let subtotal = 0;
 
@@ -20,7 +35,6 @@ export const createEstimate = async (req, res) => {
     });
 
     const vatAmount = (subtotal * Number(vatPercentage || 0)) / 100;
-
     const total = subtotal + vatAmount - Number(discount || 0);
 
     const estimate = await Estimate.create(
@@ -35,6 +49,16 @@ export const createEstimate = async (req, res) => {
         total,
         notes,
         validUntil,
+
+        // New Fields
+        estimateDate,
+        documentType,
+        labourRate,
+        jobNumber,
+        customerOrderNumber,
+        serviceAdvisor,
+        defaultDiscount,
+        vehicleMileage,
       },
       { transaction },
     );
@@ -148,7 +172,41 @@ export const updateEstimate = async (req, res) => {
       });
     }
 
-    await estimate.update(req.body);
+    const {
+      customerId,
+      vehicleId,
+      vatPercentage,
+      discount,
+      notes,
+      validUntil,
+
+      estimateDate,
+      documentType,
+      labourRate,
+      jobNumber,
+      customerOrderNumber,
+      serviceAdvisor,
+      defaultDiscount,
+      vehicleMileage,
+    } = req.body;
+
+    await estimate.update({
+      customerId,
+      vehicleId,
+      vatPercentage,
+      discount,
+      notes,
+      validUntil,
+
+      estimateDate,
+      documentType,
+      labourRate,
+      jobNumber,
+      customerOrderNumber,
+      serviceAdvisor,
+      defaultDiscount,
+      vehicleMileage,
+    });
 
     return res.json({
       success: true,

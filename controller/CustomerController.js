@@ -2,13 +2,28 @@ import Customer from "../models/customer.model.js";
 
 export const createCustomer = async (req, res) => {
   try {
-    const { name, email, phone, address } = req.body;
+    const {
+      name,
+      email,
+      phone,
+      address,
+      customerCode,
+      telephone,
+      gdprConsent,
+      creditTerms,
+      alternativeAddress,
+    } = req.body;
 
     const customer = await Customer.create({
       name,
       email,
       phone,
       address,
+      customerCode: customerCode,
+      telephone,
+      gdprConsent,
+      creditTerms,
+      alternativeAddress,
     });
 
     return res.status(201).json({

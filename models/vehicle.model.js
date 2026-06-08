@@ -39,6 +39,51 @@ const Vehicle = sequelize.define(
     mileage: {
       type: DataTypes.INTEGER,
     },
+    // new field add on
+    engineNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    fuelType: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    colour: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    cc: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    grossWeight: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+    },
+
+    taxDueDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    motDueDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    nextServiceDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    lastMileage: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     tableName: "vehicles",

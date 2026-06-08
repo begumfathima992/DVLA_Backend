@@ -31,6 +31,45 @@ const Estimate = sequelize.define(
     notes: DataTypes.TEXT,
 
     validUntil: DataTypes.DATEONLY,
+    estimateDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    documentType: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    labourRate: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+    },
+
+    jobNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    customerOrderNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    serviceAdvisor: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    defaultDiscount: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+    },
+
+    vehicleMileage: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     tableName: "estimates",

@@ -3,8 +3,26 @@ import Vehicle from "../models/vehicle.model.js";
 
 export const createVehicle = async (req, res) => {
   try {
-    const customer = await Customer.findByPk(req.body.customerId);
+    const {
+      customerId,
+      registrationNumber,
+      make,
+      model,
+      year,
+      vinNumber,
+      mileage,
+      engineNumber,
+      fuelType,
+      colour,
+      cc,
+      grossWeight,
+      taxDueDate,
+      motDueDate,
+      nextServiceDate,
+      lastMileage,
+    } = req.body;
 
+    const customer = await Customer.findByPk(req.body.customerId);
     if (!customer) {
       return res.status(404).json({
         success: false,
@@ -12,7 +30,36 @@ export const createVehicle = async (req, res) => {
       });
     }
 
-    const vehicle = await Vehicle.create(req.body);
+    const existingVehicle = await Vehicle.findOne({
+      where: {
+        registrationNumber,
+      },
+    });
+    if (existingVehicle) {
+      return res.status(400).json({
+        success: false,
+        message: "Vehicle registration number already exists",
+      });
+    }
+
+    const vehicle = await Vehicle.create({
+      customerId,
+      registrationNumber,
+      make,
+      model,
+      year,
+      vinNumber,
+      mileage,
+      engineNumber,
+      fuelType,
+      colour,
+      cc,
+      grossWeight,
+      taxDueDate,
+      motDueDate,
+      nextServiceDate,
+      lastMileage,
+    });
 
     return res.status(201).json({
       success: true,

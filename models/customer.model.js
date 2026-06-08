@@ -29,6 +29,30 @@ const Customer = sequelize.define(
     address: {
       type: DataTypes.TEXT,
     },
+    customerCode: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    telephone: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    gdprConsent: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+
+    creditTerms: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    alternativeAddress: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
   },
   {
     tableName: "customers",
