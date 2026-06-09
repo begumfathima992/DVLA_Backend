@@ -1,4 +1,10 @@
-import { Estimate, EstimateItem, Customer, Vehicle } from "../models/index.js";
+import {
+  Estimate,
+  EstimateItem,
+  Customer,
+  Vehicle,
+  JobSheet,
+} from "../models/index.js";
 
 export const createEstimate = async (req, res) => {
   const transaction = await Estimate.sequelize.transaction();
@@ -19,6 +25,7 @@ export const createEstimate = async (req, res) => {
       serviceAdvisor,
       defaultDiscount,
       vehicleMileage,
+      status,
     } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -49,16 +56,16 @@ export const createEstimate = async (req, res) => {
         total,
         notes,
         validUntil,
-
         // New Fields
         estimateDate,
         documentType,
         labourRate,
-        jobNumber,
+        jobNumber: `JOB-${Date.now()}`,
         customerOrderNumber,
         serviceAdvisor,
         defaultDiscount,
         vehicleMileage,
+        status,
       },
       { transaction },
     );
@@ -197,7 +204,6 @@ export const updateEstimate = async (req, res) => {
       discount,
       notes,
       validUntil,
-
       estimateDate,
       documentType,
       labourRate,
@@ -263,13 +269,33 @@ export const approveEstimate = async (req, res) => {
       });
     }
 
+    if (estimate.status === "Approved") {
+      return res.status(400).json({
+        success: false,
+        message: "Estimate already approved",
+      });
+    }
+
     await estimate.update({
       status: "Approved",
+      approvedAt: new Date(),
     });
 
-    return res.json({
+    const jobSheet = await JobSheet.create({
+      jobNumber: `JOB-${Date.now()}`,
+      estimateId: estimate.id,
+      customerId: estimate.customerId,
+      vehicleId: estimate.vehicleId,
+      vehicleMileage: estimate.currentMileage || 0,
+      status: "Open",
+      priority: "Medium",
+    });
+
+    return res.status(200).json({
       success: true,
-      message: "Estimate approved",
+      message: "Estimate approved and Job Sheet created",
+      estimate,
+      jobSheet,
     });
   } catch (error) {
     return res.status(500).json({
@@ -278,7 +304,6 @@ export const approveEstimate = async (req, res) => {
     });
   }
 };
-
 export const rejectEstimate = async (req, res) => {
   try {
     const estimate = await Estimate.findByPk(req.params.id);

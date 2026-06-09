@@ -1,26 +1,26 @@
 {
   "development": {
-    "username": "ziggy",
-    "password": "ziggy@123",
-    "database": "dvla",
+    "username": "root",
+    "password": "",
+    "database": "garage",
     "host": "127.0.0.1",
-    "port": 5432,
-    "dialect": "postgres"
+    "port": 3306,
+    "dialect": "mysql"
   },
   "test": {
-    "username": "ziggy",
-    "password": "ziggy@123",
-    "database": "dvla_test",
+    "username": "root",
+    "password": "",
+    "database": "garage",
     "host": "127.0.0.1",
-    "port": 5432,
-    "dialect": "postgres"
+    "port": 3306,
+    "dialect": "mysql"
   },
   "production": {
-    "username": "ziggy",
-    "password": "ziggy@123",
-    "database": "dvla_production",
+    "username": "root",
+    "password": "",
+    "database": "garage",
     "host": "127.0.0.1",
-    "port": 5432,
-    "dialect": "postgres"
+    "port": 3306,
+    "dialect": "mysql"
   }
 }

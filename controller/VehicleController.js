@@ -75,7 +75,6 @@ export const createVehicle = async (req, res) => {
 
 export const getVehicles = async (req, res) => {
   try {
-    console.log(Vehicle.associations);
     const vehicles = await Vehicle.findAll({
       include: [
         {
@@ -99,20 +98,28 @@ export const getVehicles = async (req, res) => {
 
 export const getVehicleById = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findByPk(req.params.id, {
-      include: [Customer],
+    const vehicles = await Vehicle.findAll({
+      where: {
+        customerId: req.params.id,
+      },
+      include: [
+        {
+          model: Customer,
+          as: "customer",
+        },
+      ],
     });
 
-    if (!vehicle) {
+    if (!vehicles) {
       return res.status(404).json({
         success: false,
-        message: "Vehicle not found",
+        message: "vehicles not found",
       });
     }
 
     return res.json({
       success: true,
-      data: vehicle,
+      data: vehicles,
     });
   } catch (error) {
     return res.status(500).json({

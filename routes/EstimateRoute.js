@@ -21,8 +21,8 @@ router.put("/:id", updateEstimate);
 
 router.delete("/:id", deleteEstimate);
 
-router.patch("/:id/approve", approveEstimate);
+router.patch("/approve/:id", approveEstimate);
 
-router.patch("/:id/reject", rejectEstimate);
+router.patch("/reject/:id", rejectEstimate);
 
 export default router;

@@ -1,0 +1,80 @@
+import { DataTypes } from "sequelize";
+import { sequelize } from "../config/DatabaseConfig.js";
+
+const JobSheet = sequelize.define(
+  "JobSheet",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+
+    jobNumber: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+
+    estimateId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+
+    customerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+
+    vehicleId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+
+    technicianName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    vehicleMileage: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    serviceAdvisor: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    priority: {
+      type: DataTypes.ENUM("Low", "Medium", "High", "Urgent"),
+      defaultValue: "Medium",
+    },
+
+    status: {
+      type: DataTypes.ENUM("Open", "In Progress", "Completed", "Cancelled"),
+      defaultValue: "Open",
+    },
+
+    startDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    completedDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    notes: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+  },
+  {
+    tableName: "job_sheets",
+    timestamps: true,
+  },
+);
+
+export default JobSheet;
