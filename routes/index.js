@@ -4,6 +4,7 @@ import VehicleRoute from "./VehicleRoute.js";
 import EstimateRoute from "./EstimateRoute.js";
 import AuthRoute from "./authRoute.js";
 import dvlaRoute from "./dvlaRoute.js";
+import JobSheetRoute from "./JobSheetRoute.js";
 
 const router = Router();
 
@@ -13,6 +14,6 @@ router.use("/estimate", EstimateRoute);
 
 router.use("/auth", AuthRoute); // New auth route for login/logout
 router.use("/dvla", dvlaRoute);
-
+router.use("/jobSheets", JobSheetRoute);
 
 export default router;

@@ -5,8 +5,7 @@ import {
   getEstimateById,
   updateEstimate,
   deleteEstimate,
-  approveEstimate,
-  rejectEstimate,
+  updateStatusEstimate,
 } from "../controller/EstimateController.js";
 
 const router = Router();
@@ -21,8 +20,6 @@ router.put("/:id", updateEstimate);
 
 router.delete("/:id", deleteEstimate);
 
-router.patch("/approve/:id", approveEstimate);
-
-router.patch("/reject/:id", rejectEstimate);
+router.post("/status/:id", updateStatusEstimate);
 
 export default router;

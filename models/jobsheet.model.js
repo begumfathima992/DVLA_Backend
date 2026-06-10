@@ -70,6 +70,30 @@ const JobSheet = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    subtotal: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0,
+    },
+
+    vatPercentage: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 20,
+    },
+
+    vatAmount: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0,
+    },
+
+    discount: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0,
+    },
+
+    total: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0,
+    },
   },
   {
     tableName: "job_sheets",

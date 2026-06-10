@@ -5,6 +5,7 @@ import Vehicle from "./vehicle.model.js";
 import { sequelize } from "../config/DatabaseConfig.js";
 import User from "./user.model.js";
 import JobSheet from "./jobsheet.model.js";
+import JobSheetItem from "./jobSheetItem.model.js";
 // Associations
 
 Customer.hasMany(Vehicle, {
@@ -75,4 +76,23 @@ JobSheet.belongsTo(Estimate, {
   as: "estimate",
 });
 
-export { sequelize, Customer, Vehicle, Estimate, EstimateItem, User, JobSheet };
+JobSheet.hasMany(JobSheetItem, {
+  foreignKey: "jobSheetId",
+  as: "items",
+});
+
+JobSheetItem.belongsTo(JobSheet, {
+  foreignKey: "jobSheetId",
+  as: "jobSheet",
+});
+
+export {
+  sequelize,
+  Customer,
+  Vehicle,
+  Estimate,
+  EstimateItem,
+  User,
+  JobSheet,
+  JobSheetItem,
+};
