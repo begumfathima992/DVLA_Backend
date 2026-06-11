@@ -65,6 +65,11 @@ const JobSheet = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    labourRate: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+      defaultValue: 0,
+    },
 
     notes: {
       type: DataTypes.TEXT,

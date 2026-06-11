@@ -357,6 +357,7 @@ export const updateStatusEstimate = async (req, res) => {
         vehicleMileage: estimate.vehicleMileage || 0,
         serviceAdvisor: estimate.serviceAdvisor || null,
         subtotal: estimate.subtotal || 0,
+        labourRate: estimate.labourRate,
         vatPercentage: estimate.vatPercentage || 20,
         vatAmount: estimate.vatAmount || 0,
         discount: estimate.discount || 0,

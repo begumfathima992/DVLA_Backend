@@ -6,7 +6,7 @@ const router = express.Router();
 router.get("/", JobSheetController.getJobSheets);
 router.put("/:id", JobSheetController.updateJobSheet);
 
-router.patch("/priority/:id", JobSheetController.updateJobSheetPriority);
-router.patch("/status/:id", JobSheetController.updateJobSheetStatus);
+router.post("/priority/:id", JobSheetController.updateJobSheetPriority);
+router.post("/status/:id", JobSheetController.updateJobSheetStatus);
 
 export default router;
