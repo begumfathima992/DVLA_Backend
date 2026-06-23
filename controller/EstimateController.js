@@ -1,93 +1,12 @@
-import {
-  Estimate,
-  EstimateItem,
-  Customer,
-  Vehicle,
-  JobSheet,
-  JobSheetItem,
-} from "../models/index.js";
+import estimateService from "../service/EstimateService.js";
 
 export const createEstimate = async (req, res) => {
-  const transaction = await Estimate.sequelize.transaction();
   try {
-    const {
-      customerId,
-      vehicleId,
-      vatPercentage,
-      discount,
-      notes,
-      validUntil,
-      items,
-      estimateDate,
-      documentType,
-      labourRate,
-      jobNumber,
-      customerOrderNumber,
-      serviceAdvisor,
-      defaultDiscount,
-      vehicleMileage,
-      status,
-    } = req.body;
-
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "At least one item is required",
-      });
-    }
-
-    let subtotal = 0;
-
-    items.forEach((item) => {
-      subtotal += Number(item.quantity) * Number(item.unitPrice);
-    });
-
-    const vatAmount = (subtotal * Number(vatPercentage || 0)) / 100;
-    const total = subtotal + vatAmount - Number(discount || 0);
-
-    const estimate = await Estimate.create(
-      {
-        estimateNumber: `EST-${Date.now()}`,
-        customerId,
-        vehicleId,
-        subtotal,
-        vatPercentage,
-        vatAmount,
-        discount,
-        total,
-        notes,
-        validUntil,
-        // New Fields
-        estimateDate,
-        documentType,
-        labourRate,
-        jobNumber: `JOB-${Date.now()}`,
-        customerOrderNumber,
-        serviceAdvisor,
-        defaultDiscount,
-        vehicleMileage,
-        status,
-      },
-      { transaction },
-    );
-
-    const estimateItems = items.map((item) => ({
-      estimateId: estimate.id,
-      itemType: item.itemType,
-      description: item.description,
-      quantity: item.quantity,
-      unitPrice: item.unitPrice,
-      totalPrice: Number(item.quantity) * Number(item.unitPrice),
-    }));
-
-    await EstimateItem.bulkCreate(estimateItems, { transaction });
-
-    await transaction.commit();
-
+    const estimates = await estimateService.createEstimate(req, res);
     return res.status(201).json({
       success: true,
       message: "Estimate created",
-      data: estimate,
+      data: estimates,
     });
   } catch (error) {
     await transaction.rollback();
@@ -101,25 +20,9 @@ export const createEstimate = async (req, res) => {
 
 export const getEstimates = async (req, res) => {
   try {
-    const estimates = await Estimate.findAll({
-      include: [
-        {
-          model: Customer,
-          as: "customer",
-        },
-        {
-          model: Vehicle,
-          as: "vehicle",
-        },
-        {
-          model: EstimateItem,
-          as: "items",
-        },
-      ],
-      order: [["id", "DESC"]],
-    });
+    const estimates = await estimateService.getEstimates(req, res);
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       data: estimates,
     });
@@ -133,30 +36,7 @@ export const getEstimates = async (req, res) => {
 
 export const getEstimateById = async (req, res) => {
   try {
-    const estimate = await Estimate.findByPk(req.params.id, {
-      include: [
-        {
-          model: Customer,
-          as: "customer",
-        },
-        {
-          model: Vehicle,
-          as: "vehicle",
-        },
-        {
-          model: EstimateItem,
-          as: "items",
-        },
-      ],
-    });
-
-    if (!estimate) {
-      return res.status(404).json({
-        success: false,
-        message: "Estimate not found",
-      });
-    }
-
+    const estimate = await estimateService.getEstimateById(req, res);
     return res.json({
       success: true,
       data: estimate,
@@ -170,118 +50,14 @@ export const getEstimateById = async (req, res) => {
 };
 
 export const updateEstimate = async (req, res) => {
-  const transaction = await Estimate.sequelize.transaction();
-
   try {
-    const estimate = await Estimate.findByPk(req.params.id, {
-      transaction,
-    });
-
-    if (!estimate) {
-      await transaction.rollback();
-
-      return res.status(404).json({
-        success: false,
-        message: "Estimate not found",
-      });
-    }
-
-    const {
-      customerId,
-      vehicleId,
-      vatPercentage,
-      discount,
-      notes,
-      validUntil,
-      items,
-      estimateDate,
-      documentType,
-      labourRate,
-      customerOrderNumber,
-      serviceAdvisor,
-      defaultDiscount,
-      vehicleMileage,
-      status,
-    } = req.body;
-
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      await transaction.rollback();
-      return res.status(400).json({
-        success: false,
-        message: "At least one item is required",
-      });
-    }
-    let subtotal = 0;
-    items.forEach((item) => {
-      subtotal += Number(item.quantity || 0) * Number(item.unitPrice || 0);
-    });
-    const vatAmount = (subtotal * Number(vatPercentage || 0)) / 100;
-    const total = subtotal + vatAmount - Number(discount || 0);
-    await estimate.update(
-      {
-        customerId,
-        vehicleId,
-        subtotal,
-        vatPercentage,
-        vatAmount,
-        discount,
-        total,
-        notes,
-        validUntil,
-        estimateDate,
-        documentType,
-        labourRate,
-        customerOrderNumber,
-        serviceAdvisor,
-        defaultDiscount,
-        vehicleMileage,
-        status,
-      },
-      { transaction },
-    );
-    await EstimateItem.destroy({
-      where: {
-        estimateId: estimate.id,
-      },
-      transaction,
-    });
-
-    // Insert new items
-    const estimateItems = items.map((item) => ({
-      estimateId: estimate.id,
-
-      itemType: item.itemType,
-      description: item.description,
-
-      quantity: item.quantity,
-      unitPrice: item.unitPrice,
-
-      totalPrice: Number(item.quantity || 0) * Number(item.unitPrice || 0),
-    }));
-
-    await EstimateItem.bulkCreate(estimateItems, {
-      transaction,
-    });
-
-    await transaction.commit();
-
-    const updatedEstimate = await Estimate.findByPk(estimate.id, {
-      include: [
-        {
-          model: EstimateItem,
-          as: "items",
-        },
-      ],
-    });
-
+    const estimate = await estimateService.updateEstimate(req, res);
     return res.status(200).json({
       success: true,
       message: "Estimate updated successfully",
-      data: updatedEstimate,
+      data: estimate,
     });
   } catch (error) {
-    await transaction.rollback();
-
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -291,26 +67,11 @@ export const updateEstimate = async (req, res) => {
 
 export const deleteEstimate = async (req, res) => {
   try {
-    const estimate = await Estimate.findByPk(req.params.id);
-
-    if (!estimate) {
-      return res.status(404).json({
-        success: false,
-        message: "Estimate not found",
-      });
-    }
-
-    await EstimateItem.destroy({
-      where: {
-        estimateId: estimate.id,
-      },
-    });
-
-    await estimate.destroy();
-
+    const estimate = await estimateService.deleteEstimate(req, res);
     return res.json({
       success: true,
       message: "Estimate deleted",
+      data: estimate,
     });
   } catch (error) {
     return res.status(500).json({
@@ -322,96 +83,8 @@ export const deleteEstimate = async (req, res) => {
 
 export const updateStatusEstimate = async (req, res) => {
   try {
-    const estimate = await Estimate.findByPk(req.params.id);
-    const status = req?.body?.status;
-
-    if (!estimate) {
-      return res.status(404).json({
-        success: false,
-        message: "Estimate not found",
-      });
-    }
-
-    if (status == "Approved") {
-      if (estimate.status === "Approved") {
-        return res.status(400).json({
-          success: false,
-          message: "Estimate already approved",
-        });
-      }
-      await estimate.update({
-        status: "Approved",
-        approvedAt: new Date(),
-      });
-      const estimateItems = await EstimateItem.findAll({
-        where: {
-          estimateId: estimate.id,
-        },
-      });
-
-      const jobSheet = await JobSheet.create({
-        jobNumber: estimate.jobNumber,
-        estimateId: estimate.id,
-        customerId: estimate.customerId,
-        vehicleId: estimate.vehicleId,
-        vehicleMileage: estimate.vehicleMileage || 0,
-        serviceAdvisor: estimate.serviceAdvisor || null,
-        subtotal: estimate.subtotal || 0,
-        labourRate: estimate.labourRate,
-        vatPercentage: estimate.vatPercentage || 20,
-        vatAmount: estimate.vatAmount || 0,
-        discount: estimate.discount || 0,
-        total: estimate.total || 0,
-        status: "Open",
-        priority: "Medium",
-      });
-      if (estimateItems.length > 0) {
-        const jobSheetItems = estimateItems.map((item) => ({
-          jobSheetId: jobSheet.id,
-          itemType: item.itemType,
-          description: item.description,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          totalPrice: item.totalPrice,
-        }));
-
-        await JobSheetItem.bulkCreate(jobSheetItems);
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: "Estimate approved and Job Sheet created",
-        estimate,
-        jobSheet,
-      });
-    } else if (status == "Rejected") {
-      await estimate.update({
-        status: "Rejected",
-      });
-
-      return res.json({
-        success: true,
-        message: "Estimate rejected",
-      });
-    } else if (status == "Draft") {
-      await estimate.update({
-        status: "Draft",
-      });
-
-      return res.json({
-        success: true,
-        message: "Estimate rejected",
-      });
-    } else {
-      await estimate.update({
-        status: "Sent",
-      });
-
-      return res.json({
-        success: true,
-        message: "Estimate Sent",
-      });
-    }
+    const estimate = await estimateService.updateStatusEstimate(req, res);
+    return estimate;
   } catch (error) {
     return res.status(500).json({
       success: false,

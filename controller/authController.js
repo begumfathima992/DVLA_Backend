@@ -4,13 +4,10 @@ import { User } from "../models/index.js";
 
 export const register = async (req, res) => {
   try {
-    console.log("dvla");
     const { name, email, password, role } = req.body;
-
     const existingUser = await User.findOne({
       where: { email },
     });
-
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -42,8 +39,6 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    console.log("sdlkfjslkdjfkl");
-
     const { email, password } = req.body;
 
     console.log(process.env.JWT_SECRET);
