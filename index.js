@@ -1,47 +1,80 @@
-const express = require('express');
-const axios = require('axios');
-const cors = require('cors');
+import express from "express";
+import cors from "cors";
+import { env } from "./config/env.js";
+import { sequelize } from "./models/index.js";
+import Routes from "./routes/index.js";
+import { requestContext } from "./middleware/requestContext.js";
+import { notFound } from "./middleware/notFound.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import AppError from "./utils/AppError.js";
 
 const app = express();
-
-app.use(cors("*"));
-app.use(express.json());
-
-// Test route to ensure it works
-app.get('/', (req, res) => {
-  res.json({ message: "Server is perfectly alive!" });
+app.disable("x-powered-by");
+app.set("trust proxy", 1);
+app.use(requestContext);
+app.use((_, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  next();
 });
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || env.corsOrigins.includes("*") || env.corsOrigins.includes(origin)) return callback(null, true);
+    return callback(new AppError("Origin is not allowed by CORS", 403, "CORS_FORBIDDEN"));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id"],
+}));
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
-
-
-app.post('/api/save-vehicle',async (req, res) => {
-  console.log('Received vehicle data to save:', req.body);
-  const vrm = req.body.registrationNumber?.replace(/\s+/g, '').toUpperCase();
-  if (!vrm) return res.status(400).json({ error: "Registration number required" });
-
+app.get("/", (_req, res) => res.json({ success: true, message: "PrestigeWorkshops API", version: "2.0.0" }));
+app.get("/health", async (_req, res, next) => {
   try {
-    const response = await axios({
-      method: 'post',
-      url: 'https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles',
-      headers: {
-        'x-api-key': 'eecCgl0PmtaW9pPLHYssh4fyOga5vo3K3d7L67R4',
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'
-      },
-      data: { registrationNumber: vrm }
-    });
-    return res.json(response.data);
+    await sequelize.authenticate();
+    res.json({ success: true, status: "OK", environment: env.nodeEnv, database: "connected", dvlaConfigured: Boolean(env.dvlaApiKey), timestamp: new Date().toISOString() });
   } catch (error) {
-    console.error('Error fetching vehicle data:', error.response?.data || error.message);
-    return res.status(error.response?.status || 500).json({ error: error.message });
+    next(error);
   }
 });
 
+app.use(env.apiPrefix, Routes);
+app.use(notFound);
+app.use(errorHandler);
 
+let server;
+const start = async () => {
+  await sequelize.authenticate();
+  console.log("Database connected");
+  server = app.listen(env.port, () => console.log(`PrestigeWorkshops API listening on port ${env.port}`));
+};
 
-// Using Port 5050 to break away from any locked background ports
-const PORT = 5050;
-app.listen(PORT, () => {
-  console.log(`🚀 Server safely locked and running on port ${PORT}`);
+const shutdown = async (signal) => {
+  console.log(`${signal} received; shutting down`);
+  const forceExit = setTimeout(() => process.exit(1), 10000);
+  forceExit.unref?.();
+  if (server) await new Promise((resolve) => server.close(resolve));
+  await sequelize.close();
+  process.exit(0);
+};
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("unhandledRejection", (error) => {
+  console.error("Unhandled promise rejection:", error);
+  shutdown("unhandledRejection");
 });
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught exception:", error);
+  shutdown("uncaughtException");
+});
+
+start().catch((error) => {
+  console.error("Application startup failed:", error);
+  process.exit(1);
+});
+
+export default app;

@@ -1,22 +1,41 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "description": "",
+  "name": "prestigeworkshops-api",
+  "version": "2.0.0",
+  "description": "Production-ready workshop management API for PrestigeWorkshops",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start":"node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "check": "node scripts/check-project.js",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo",
+    "db:migrate:status": "sequelize-cli db:migrate:status"
   },
-  "keywords": [],
-  "author": "",
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "workshop",
+    "garage",
+    "vehicle",
+    "invoice",
+    "estimate"
+  ],
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "axios": "^1.13.6",
+    "axios": "^1.17.0",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
-    "dotenv": "^17.3.1",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "got": "^15.0.3",
-    "nodemon": "^3.1.14"
+    "joi": "^18.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.22.4",
+    "sequelize": "^6.37.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14",
+    "sequelize-cli": "^6.6.5"
   }
 }
